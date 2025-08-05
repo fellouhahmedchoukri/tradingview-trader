@@ -1,7 +1,122 @@
-TradingBot Pro - Plateforme de Trading Automatisé
-Voici un README complet et une solution de dashboard professionnel pour votre système de trading TradingView/Binance.
+# TradingBot Pro - Plateforme de Trading Automatisé
 
-Arborescence du projet
+![Dashboard TradingBot Pro](https://example.com/tradingbot-dashboard.jpg)
+
+Solution complète pour exécuter automatiquement vos stratégies TradingView sur Binance avec un **dashboard professionnel** de suivi et de contrôle en temps réel.
+
+## Fonctionnalités Clés
+
+- 🚀 **Exécution automatique** des signaux TradingView
+- 📊 **Dashboard interactif** avec visualisation en temps réel
+- ⚙️ Gestion multi-stratégies
+- 🔒 Sécurité renforcée avec authentification HMAC
+- 📈 Analyse de performance détaillée
+- 🛠️ **Contrôle manuel** des positions et des ordres
+- 📱 Interface responsive pour tous les appareils
+
+## Installation et Configuration
+
+### Prérequis
+- Node.js v18+
+- Compte Binance (réel ou testnet) avec clés API
+- Compte TradingView Pro
+
+### Installation
+```bash
+git clone https://github.com/votre-utilisateur/tradingbot-pro.git
+cd tradingbot-pro
+npm install
+cp .env.example .env
+# Éditez le fichier .env avec vos informations
+npm start
+
+Configuration TradingView
+Créez une nouvelle alerte dans TradingView
+
+Sélectionnez le format "Webhook"
+
+Utilisez l'URL : https://votre-domaine/webhook
+
+Configurez le message au format JSON :
+{
+  "symbol": "BTCUSDT",
+  "action": "BUY",
+  "price": "{{close}}",
+  "strategy": "RSI Divergence",
+  "size": 0.001
+}
+Configuration Binance
+Dans le fichier .env :
+
+ini
+BINANCE_API_KEY="votre_cle_api"
+BINANCE_API_SECRET="votre_secret_api"
+TESTNET=false # true pour le mode test
+ACCOUNT_BALANCE=1000 # Votre solde initial
+TRADINGVIEW_SECRET="votre_secret"
+Dashboard Professionnel
+Accédez au dashboard à l'adresse : https://votre-domaine/dashboard
+
+Fonctionnalités du Dashboard
+Vue d'ensemble du portefeuille
+
+Solde total et profit du jour
+
+Performance globale
+
+Graphiques interactifs
+
+Gestion des positions
+
+Liste complète des positions ouvertes
+
+Profit/Perte en temps réel
+
+Fermeture manuelle des positions
+
+Modification des ordres
+
+Contrôle des stratégies
+
+Activation/désactivation des stratégies
+
+Analyse de performance par stratégie
+
+Historique des signaux
+
+Passer des ordres manuels
+
+Interface intuitive pour passer des ordres
+
+Choix du type d'ordre (marché, limite)
+
+Configuration du levier
+
+Analytics avancées
+
+Analyse technique des positions
+
+Backtesting visuel
+
+Rapports de performance
+
+Captures d'écran
+https://example.com/dashboard-screenshot.jpg
+https://example.com/positions-screenshot.jpg
+https://example.com/order-screenshot.jpg
+
+Déploiement
+Avec Docker
+bash
+docker-compose up --build -d
+Sur Railway
+Connectez votre dépôt GitHub
+
+Configurez les variables d'environnement
+
+Déployez!
+
+Structure du Projet
 text
 tradingbot-pro/
 ├── .env
@@ -13,216 +128,41 @@ tradingbot-pro/
 │   └── strategies.js
 ├── core/
 │   ├── exchange/
-│   │   ├── connector.js
-│   │   ├── executeOrder.js
-│   │   └── portfolio.js
 │   ├── webhook/
-│   │   ├── auth.js
-│   │   └── parser.js
 │   └── database/
-│       ├── models/
-│       │   ├── Trade.js
-│       │   └── Signal.js
-│       └── db.js
 ├── server/
 │   ├── index.js
-│   ├── api/
-│   │   ├── trading.js
-│   │   └── account.js
 │   └── dashboard/
-│       ├── app.js
-│       ├── views/
-│       │   ├── index.ejs
-│       │   ├── dashboard.ejs
-│       │   └── layout.ejs
-│       └── public/
-│           ├── css/
-│           │   └── style.css
-│           ├── js/
-│           │   └── chart.js
-│           └── img/
 ├── scripts/
-│   ├── setup.js
-│   ├── backtester.js
-│   └── deploy.js
-├── README.md
 └── tests/
-    ├── trading.test.js
-    └── webhook.test.js
-README.md
-markdown
-# TradingBot Pro - Plateforme de Trading Automatisé
-
-![TradingBot Pro](https://example.com/tradingbot-banner.jpg)
-
-Solution complète pour exécuter automatiquement vos stratégies TradingView sur Binance avec un dashboard professionnel de suivi.
-
-## Fonctionnalités Clés
-
-- 🚀 Exécution automatique des signaux TradingView
-- 📊 Dashboard complet avec visualisation en temps réel
-- ⚙️ Gestion multi-stratégies
-- 🔒 Sécurité renforcée avec authentification HMAC
-- 📈 Analyse de performance détaillée
-- 📱 Interface responsive pour tous les appareils
-
-## Prérequis
-
-- Node.js v18+
-- Compte Binance avec clés API
-- Compte TradingView Pro
-
-## Installation
-
-1. Clonez le dépôt :
-```bash
-git clone https://github.com/votre-utilisateur/tradingbot-pro.git
-cd tradingbot-pro
-Installez les dépendances :
-
-bash
-npm install
-Configurez les variables d'environnement :
-
-bash
-cp .env.example .env
-# Éditez le fichier .env avec vos informations
-Initialisez la base de données :
-
-bash
-npm run setup
-Démarrez le serveur :
-
-bash
-npm start
-Configuration TradingView
-Créez une nouvelle alerte dans TradingView
-
-Sélectionnez le format "Webhook"
-
-Utilisez l'URL : https://votre-domaine/webhook
-
-Configurez le message au format JSON :
-
-json
-{
-  "symbol": "BTCUSDT",
-  "action": "BUY",
-  "price": "{{close}}",
-  "strategy": "RSI Divergence",
-  "size": 0.001
-}
-Ajoutez l'en-tête d'authentification :
-
-Clé : tv-signature
-
-Valeur : {{strategy.order.id}} (ou votre secret personnalisé)
-
-Configuration Binance
-Dans le fichier .env :
-
-ini
-BINANCE_API_KEY="votre_cle_api"
-BINANCE_API_SECRET="votre_secret_api"
-TESTNET=false # true pour le mode test
-ACCOUNT_BALANCE=1000 # Votre solde initial
-Dans config/exchanges.js :
-
-javascript
-export default {
-  selectedExchange: 'binance',
-  accountBalance: process.env.ACCOUNT_BALANCE,
-  
-  exchanges: {
-    binance: {
-      apiKey: process.env.BINANCE_API_KEY,
-      secret: process.env.BINANCE_API_SECRET,
-      futures: true,
-      testnet: process.env.TESTNET === 'true',
-      options: {
-        defaultType: 'future',
-        adjustForTimeDifference: true
-      }
-    }
-  }
-};
-Dashboard d'Administration
-Accédez au dashboard à l'adresse : https://votre-domaine/dashboard
-
-Fonctionnalités du dashboard :
-
-Visualisation des positions en temps réel
-
-Historique des trades avec filtres avancés
-
-Analyse de performance des stratégies
-
-Gestion manuelle des positions
-
-Alertes et notifications
-
-Configuration des paramètres de trading
-
-Déploiement avec Docker
-bash
-docker-compose up --build -d
-Structure des Fichiers
-core/ - Logique métier principale
-
-server/ - Serveur API et dashboard
-
-config/ - Configuration des exchanges et stratégies
-
-scripts/ - Scripts utilitaires
-
-tests/ - Tests automatisés
-
-Sécurité
-Authentification HMAC pour les webhooks
-
-Chiffrement des données sensibles
-
-Journalisation complète des opérations
-
-Limitation de débit (rate limiting)
-
 Contribution
-Les contributions sont bienvenues ! Suivez le processus :
+Les contributions sont bienvenues! Suivez le processus :
 
 Forkez le projet
 
-Créez votre branche (git checkout -b feature/ma-fonctionnalite)
+Créez votre branche
 
-Committez vos changements (git commit -am 'Ajout de ma fonctionnalité')
+Committez vos changements
 
-Pushez vers la branche (git push origin feature/ma-fonctionnalite)
+Pushez vers la branche
 
 Ouvrez une Pull Request
 
 Licence
 Ce projet est sous licence MIT - voir le fichier LICENSE pour plus de détails.
 
-Remarque : Le trading comporte des risques de perte en capital. Utilisez ce logiciel à vos propres risques.
+Avertissement : Le trading comporte des risques de perte en capital. Utilisez ce logiciel à vos propres risques.
 
 text
 
-## Dashboard Professionnel Complet
+Ce dashboard professionnel vous permet de :
 
-### Structure du Dashboard
-dashboard/
-├── app.js # Serveur du dashboard
-├── views/
-│ ├── layout.ejs # Template de base
-│ ├── index.ejs # Page de connexion
-│ ├── dashboard.ejs # Tableau de bord principal
-│ ├── strategies.ejs # Gestion des stratégies
-│ ├── trades.ejs # Historique des trades
-│ └── settings.ejs # Configuration
-└── public/
-├── css/
-│ └── style.css # Styles principaux
-├── js/
-│ ├── chart.js # Bibliothèque de graphiques
-│ ├── dashboard.js# Logique du dashboard
-│ └── api.js # Client API
-└── img/ # Images et icônes
+1. Visualiser l'état de votre portefeuille en temps réel
+2. Voir toutes vos positions ouvertes avec P&L
+3. Fermer manuellement des positions
+4. Modifier les ordres existants
+5. Passer de nouveaux ordres manuellement
+6. Analyser la performance de vos stratégies
+7. Surveiller l'activité du trading bot
+
+Toutes les actions sont disponibles directement depuis l'interface, sans avoir à modifier le code ou utiliser des outils externes.
