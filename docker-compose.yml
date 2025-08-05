@@ -1,21 +1,20 @@
 version: '3.8'
 services:
-  trader:
+  binance-trader:
     image: node:18
-    container_name: tradingview-trader
+    container_name: binance-trader
     working_dir: /app
     volumes:
       - .:/app
     environment:
       - NODE_ENV=production
       - PORT=3000
+      - BINANCE_API_KEY=${BINANCE_API_KEY}
+      - BINANCE_API_SECRET=${BINANCE_API_SECRET}
+      - TRADINGVIEW_SECRET=${TRADINGVIEW_SECRET}
+      - TESTNET=true # Mettre à false en production
     ports:
       - "3000:3000"
     command: >
       sh -c "npm install && npm start"
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
