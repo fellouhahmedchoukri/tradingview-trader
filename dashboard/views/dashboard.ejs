@@ -1,254 +1,1275 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TradingBot Pro - Dashboard</title>
-  <link rel="stylesheet" href="/dashboard/css/style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/luxon@3.3.0/build/global/luxon.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradingBot Pro - Dashboard Professionnel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <style>
+        :root {
+            --primary: #2962ff;
+            --primary-dark: #0039cb;
+            --secondary: #455a64;
+            --success: #00c853;
+            --danger: #ff1744;
+            --warning: #ffab00;
+            --info: #00b0ff;
+            
+            --background: #0f172a;
+            --surface: #1e293b;
+            --surface-light: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border: #334155;
+            
+            --font-family: 'Inter', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--surface);
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            padding: 24px;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo i {
+            font-size: 24px;
+            color: var(--primary);
+        }
+
+        .logo h1 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .menu {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            text-decoration: none;
+            color: var(--text-secondary);
+            border-radius: 8px;
+            transition: all 0.2s;
+            gap: 12px;
+        }
+
+        .menu-item:hover {
+            background: rgba(41, 98, 255, 0.1);
+            color: var(--primary);
+        }
+
+        .menu-item.active {
+            background: rgba(41, 98, 255, 0.2);
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .menu-item i {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .account-info {
+            margin-top: auto;
+            padding: 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .balance {
+            margin-bottom: 16px;
+        }
+
+        .balance span {
+            display: block;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .balance strong {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .btn-logout {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 23, 68, 0.1);
+            color: var(--danger);
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-logout:hover {
+            background: rgba(255, 23, 68, 0.2);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-left h2 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .status-indicator.connected {
+            background: var(--success);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-profile img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            padding: 24px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+            margin-right: 16px;
+        }
+
+        .stat-icon.bg-blue { background: var(--primary); }
+        .stat-icon.bg-green { background: var(--success); }
+        .stat-icon.bg-orange { background: var(--warning); }
+        .stat-icon.bg-purple { background: #aa00ff; }
+
+        .stat-info {
+            flex: 1;
+        }
+
+        .stat-info span {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .stat-info h3 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .stat-trend {
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stat-trend.positive { color: var(--success); }
+        .stat-trend.negative { color: var(--danger); }
+        .stat-trend.neutral { color: var(--text-secondary); }
+
+        /* Charts */
+        .charts-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 16px;
+            padding: 0 24px 24px;
+        }
+
+        .chart-container {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .chart-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chart-actions button {
+            padding: 4px 8px;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .chart-actions button.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        /* Sections */
+        .section {
+            background: var(--surface);
+            border-radius: 12px;
+            margin: 0 24px 24px;
+            border: 1px solid var(--border);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            padding: 8px 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-icon:hover {
+            background: var(--surface-light);
+        }
+
+        /* Table */
+        .table-container {
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .data-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .asset {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .asset-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            background: var(--surface-light);
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-buy {
+            background: rgba(0, 200, 83, 0.1);
+            color: var(--success);
+        }
+
+        .badge-sell {
+            background: rgba(255, 23, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .positive {
+            color: var(--success);
+            font-weight: 500;
+        }
+
+        .negative {
+            color: var(--danger);
+            font-weight: 500;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Activity Feed */
+        .activity-feed {
+            padding: 20px;
+        }
+
+        .activity-item {
+            display: flex;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border);
+            gap: 16px;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: var(--surface-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+
+        .activity-content p {
+            margin-bottom: 4px;
+        }
+
+        .activity-content span {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        /* Order Form */
+        .order-form {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .btn-group {
+            grid-column: span 2;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .btn-secondary {
+            padding: 10px 20px;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .btn-secondary:hover {
+            background: var(--surface-light);
+        }
+        
+        /* Strategy Cards */
+        .strategy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .strategy-card {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+        
+        .strategy-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border-color: var(--primary);
+        }
+        
+        .strategy-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .strategy-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .strategy-status {
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-active {
+            background: rgba(0, 200, 83, 0.1);
+            color: var(--success);
+        }
+        
+        .status-inactive {
+            background: rgba(255, 23, 68, 0.1);
+            color: var(--danger);
+        }
+        
+        .strategy-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        .strategy-actions {
+            display: flex;
+            gap: 10px;
+        }
+    </style>
 </head>
 <body>
-  <div class="dashboard-container">
-    <!-- Sidebar -->
-    <div class="sidebar">
-      <div class="logo">
-        <img src="/dashboard/img/logo.svg" alt="TradingBot Pro">
-        <span>TradingBot Pro</span>
-      </div>
-      <nav>
-        <ul>
-          <li class="active"><a href="/dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
-          <li><a href="/dashboard/positions"><i class="fas fa-exchange-alt"></i> Positions</a></li>
-          <li><a href="/dashboard/strategies"><i class="fas fa-robot"></i> Stratégies</a></li>
-          <li><a href="/dashboard/analytics"><i class="fas fa-chart-bar"></i> Analytics</a></li>
-          <li><a href="/dashboard/settings"><i class="fas fa-cog"></i> Paramètres</a></li>
-        </ul>
-      </nav>
-      <div class="account-info">
-        <div class="balance">
-          <span>Solde</span>
-          <strong id="account-balance">$<%= accountBalance.toFixed(2) %></strong>
-        </div>
-        <div class="profit">
-          <span>Profit du jour</span>
-          <strong class="positive" id="daily-profit">+$<%= dailyProfit.toFixed(2) %></strong>
-        </div>
-        <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
-      </div>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-chart-line"></i>
+                <h1>TradingBot Pro</h1>
+            </div>
+            <nav class="menu">
+                <a href="#" class="menu-item active" data-page="dashboard">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="menu-item" data-page="positions">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Positions</span>
+                </a>
+                <a href="#" class="menu-item" data-page="strategies">
+                    <i class="fas fa-robot"></i>
+                    <span>Stratégies</span>
+                </a>
+                <a href="#" class="menu-item" data-page="analytics">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="#" class="menu-item" data-page="orders">
+                    <i class="fas fa-trade"></i>
+                    <span>Passer un ordre</span>
+                </a>
+                <a href="#" class="menu-item" data-page="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Paramètres</span>
+                </a>
+            </nav>
+            <div class="account-info">
+                <div class="balance">
+                    <span>Solde disponible</span>
+                    <strong>$12,500.75</strong>
+                </div>
+                <button class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> Déconnexion
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-left">
+                    <h2 id="page-title">Tableau de Bord</h2>
+                    <div class="status">
+                        <div class="status-indicator connected"></div>
+                        <span>Connecté à Binance</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="user-profile">
+                        <img src="https://ui-avatars.com/api/?name=Admin&background=2962ff&color=fff" alt="Avatar">
+                        <span>Admin</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div id="page-content">
+                <!-- Dashboard Page -->
+                <div class="page" id="dashboard-page">
+                    <!-- Stats Cards -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon bg-blue">
+                                <i class="fas fa-wallet"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span>Solde total</span>
+                                <h3>$14,200.50</h3>
+                            </div>
+                            <div class="stat-trend positive">
+                                <i class="fas fa-arrow-up"></i> 2.3%
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon bg-green">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span>Performance</span>
+                                <h3>+15.7%</h3>
+                            </div>
+                            <div class="stat-trend positive">
+                                <i class="fas fa-arrow-up"></i> 1.2%
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon bg-orange">
+                                <i class="fas fa-exchange-alt"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span>Trades actifs</span>
+                                <h3>5</h3>
+                            </div>
+                            <div class="stat-trend neutral">
+                                <i class="fas fa-minus"></i> 0
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon bg-purple">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span>Stratégies</span>
+                                <h3>8</h3>
+                            </div>
+                            <div class="stat-trend positive">
+                                <i class="fas fa-arrow-up"></i> 2
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Row -->
+                    <div class="charts-row">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3>Performance du portefeuille</h3>
+                                <div class="chart-actions">
+                                    <button>1J</button>
+                                    <button class="active">1S</button>
+                                    <button>1M</button>
+                                    <button>1A</button>
+                                </div>
+                            </div>
+                            <canvas id="performance-chart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3>Répartition des actifs</h3>
+                            </div>
+                            <canvas id="distribution-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Active Positions -->
+                    <div class="section">
+                        <div class="section-header">
+                            <h3>Positions actives</h3>
+                            <div class="section-actions">
+                                <button class="btn-icon">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Symbole</th>
+                                        <th>Type</th>
+                                        <th>Quantité</th>
+                                        <th>Prix d'entrée</th>
+                                        <th>Prix actuel</th>
+                                        <th>Profit</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="asset">
+                                                <div class="asset-icon">
+                                                    BTC
+                                                </div>
+                                                <span>BTCUSDT</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-buy">
+                                                Achat
+                                            </span>
+                                        </td>
+                                        <td>0.25</td>
+                                        <td>$62,000.00</td>
+                                        <td>$63,500.00</td>
+                                        <td class="positive">
+                                            $375.00 (2.42%)
+                                        </td>
+                                        <td>
+                                            <div class="actions">
+                                                <button class="btn-icon" title="Fermer la position">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                                <button class="btn-icon" title="Modifier">
+                                                    <i class="fas fa-pen"></i>
+                                                </button>
+                                                <button class="btn-icon" title="Détails">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="asset">
+                                                <div class="asset-icon">
+                                                    ETH
+                                                </div>
+                                                <span>ETHUSDT</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-sell">
+                                                Vente
+                                            </span>
+                                        </td>
+                                        <td>1.20</td>
+                                        <td>$3,500.00</td>
+                                        <td>$3,400.00</td>
+                                        <td class="positive">
+                                            $120.00 (2.86%)
+                                        </td>
+                                        <td>
+                                            <div class="actions">
+                                                <button class="btn-icon" title="Fermer la position">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                                <button class="btn-icon" title="Modifier">
+                                                    <i class="fas fa-pen"></i>
+                                                </button>
+                                                <button class="btn-icon" title="Détails">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="asset">
+                                                <div class="asset-icon">
+                                                    DOGE
+                                                </div>
+                                                <span>DOGEUSDT</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-buy">
+                                                Achat
+                                            </span>
+                                        </td>
+                                        <td>1000</td>
+                                        <td>$0.15</td>
+                                        <td>$0.16</td>
+                                        <td class="positive">
+                                            $10.00 (6.67%)
+                                        </td>
+                                        <td>
+                                            <div class="actions">
+                                                <button class="btn-icon" title="Fermer la position">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                                <button class="btn-icon" title="Modifier">
+                                                    <i class="fas fa-pen"></i>
+                                                </button>
+                                                <button class="btn-icon" title="Détails">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="section">
+                        <div class="section-header">
+                            <h3>Activité récente</h3>
+                            <div class="section-actions">
+                                <button class="btn-icon">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="activity-feed">
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-bolt"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <p>Ordre d'achat exécuté pour DOGEUSDT</p>
+                                    <span>Il y a 2 minutes</span>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <p>Stratégie RSI activée sur BTCUSDT</p>
+                                    <span>Il y a 15 minutes</span>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <p>Nouveau plus haut du portefeuille</p>
+                                    <span>Il y a 1 heure</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Positions Page -->
+                <div class="page" id="positions-page" style="display:none">
+                    <div class="section">
+                        <div class="section-header">
+                            <h3>Toutes les positions</h3>
+                            <div class="section-actions">
+                                <button class="btn-icon">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                                <button class="btn-primary">
+                                    <i class="fas fa-plus"></i> Nouvelle position
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Symbole</th>
+                                        <th>Type</th>
+                                        <th>Quantité</th>
+                                        <th>Prix d'entrée</th>
+                                        <th>Prix actuel</th>
+                                        <th>Profit</th>
+                                        <th>Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Positions will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Strategies Page -->
+                <div class="page" id="strategies-page" style="display:none">
+                    <div class="section">
+                        <div class="section-header">
+                            <h3>Stratégies de trading</h3>
+                            <div class="section-actions">
+                                <button class="btn-primary">
+                                    <i class="fas fa-plus"></i> Ajouter une stratégie
+                                </button>
+                            </div>
+                        </div>
+                        <div class="strategy-grid">
+                            <div class="strategy-card">
+                                <div class="strategy-header">
+                                    <div class="strategy-title">RSI Divergence</div>
+                                    <div class="strategy-status status-active">Active</div>
+                                </div>
+                                <p>Détection des divergences RSI sur timeframe 15m</p>
+                                <div class="strategy-stats">
+                                    <div class="stat-item">
+                                        <div class="stat-value">+15.2%</div>
+                                        <div class="stat-label">Performance</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-value">72%</div>
+                                        <div class="stat-label">Succès</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-value">24</div>
+                                        <div class="stat-label">Trades</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-value">BTC, ETH</div>
+                                        <div class="stat-label">Actifs</div>
+                                    </div>
+                                </div>
+                                <div class="strategy-actions">
+                                    <button class="btn-secondary">Désactiver</button>
+                                    <button class="btn-primary">Configurer</button>
+                                </div>
+                            </div>
+                            <div class="strategy-card">
+                                <div class="strategy-header">
+                                    <div class="strategy-title">MA Crossover</div>
+                                    <div class="strategy-status status-active">Active</div>
+                                </div>
+                                <p>Croisement des moyennes mobiles 50 et 200</p>
+                                <div class="strategy-stats">
+                                    <div class="stat-item">
+                                        <div class="stat-value">+8.7%</div>
+                                        <div class="stat-label">Performance</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-value">65%</div>
+                                        <div class="stat-label">Succès</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-value">18</div>
+                                        <div class="stat-label">Trades</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-value">BTC, SOL</div>
+                                        <div class="stat-label">Actifs</div>
+                                    </div>
+                                </div>
+                                <div class="strategy-actions">
+                                    <button class="btn-secondary">Désactiver</button>
+                                    <button class="btn-primary">Configurer</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orders Page -->
+                <div class="page" id="orders-page" style="display:none">
+                    <div class="section">
+                        <div class="section-header">
+                            <h3>Passer un nouvel ordre</h3>
+                        </div>
+                        <form class="order-form">
+                            <div class="form-group">
+                                <label for="symbol">Symbole</label>
+                                <select id="symbol" class="form-control">
+                                    <option value="BTCUSDT">BTC/USDT</option>
+                                    <option value="ETHUSDT">ETH/USDT</option>
+                                    <option value="DOGEUSDT" selected>DOGE/USDT</option>
+                                    <option value="SOLUSDT">SOL/USDT</option>
+                                    <option value="XRPUSDT">XRP/USDT</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="order-type">Type d'ordre</label>
+                                <select id="order-type" class="form-control">
+                                    <option value="market">Marché</option>
+                                    <option value="limit">Limite</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="side">Position</label>
+                                <select id="side" class="form-control">
+                                    <option value="buy">Achat</option>
+                                    <option value="sell">Vente</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="amount">Quantité</label>
+                                <input type="number" id="amount" class="form-control" value="1000" step="10" min="0">
+                            </div>
+                            
+                            <div class="form-group" id="price-group">
+                                <label for="price">Prix ($)</label>
+                                <input type="number" id="price" class="form-control" value="0.15" step="0.001" min="0">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="leverage">Effet de levier</label>
+                                <input type="number" id="leverage" class="form-control" value="10" min="1" max="100">
+                            </div>
+                            
+                            <div class="btn-group">
+                                <button type="button" class="btn-secondary">Annuler</button>
+                                <button type="submit" class="btn-primary">Exécuter l'ordre</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-      <header>
-        <h1>Tableau de Bord</h1>
-        <div class="status-indicator">
-          <span class="status-dot active"></span>
-          <span>Connecté à Binance</span>
-          <span class="last-update" id="last-update">Dernière mise à jour: <%= new Date().toLocaleTimeString() %></span>
-        </div>
-      </header>
-
-      <!-- Stats Overview -->
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-header">
-            <i class="fas fa-wallet"></i>
-            <h3>Solde</h3>
-          </div>
-          <div class="stat-value">$<%= accountBalance.toFixed(2) %></div>
-          <div class="stat-change positive">+2.3%</div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-header">
-            <i class="fas fa-chart-line"></i>
-            <h3>Performance</h3>
-          </div>
-          <div class="stat-value">+15.7%</div>
-          <div class="stat-change positive">+1.2%</div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-header">
-            <i class="fas fa-exchange-alt"></i>
-            <h3>Trades Actifs</h3>
-          </div>
-          <div class="stat-value"><%= activeTrades.length %></div>
-          <div class="stat-change neutral">0</div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-header">
-            <i class="fas fa-robot"></i>
-            <h3>Stratégies</h3>
-          </div>
-          <div class="stat-value"><%= strategies.length %></div>
-          <div class="stat-change positive">+2</div>
-        </div>
-      </div>
-
-      <!-- Portfolio Overview -->
-      <div class="portfolio-overview">
-        <div class="chart-container">
-          <h2>Performance du Portefeuille</h2>
-          <canvas id="performance-chart" height="300"></canvas>
-        </div>
+    <script>
+        // Navigation
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // Update active menu item
+                document.querySelectorAll('.menu-item').forEach(i => {
+                    i.classList.remove('active');
+                });
+                this.classList.add('active');
+                
+                // Show the corresponding page
+                const page = this.getAttribute('data-page');
+                document.querySelectorAll('.page').forEach(p => {
+                    p.style.display = 'none';
+                });
+                document.getElementById(`${page}-page`).style.display = 'block';
+                
+                // Update page title
+                document.getElementById('page-title').textContent = this.querySelector('span').textContent;
+            });
+        });
         
-        <div class="asset-distribution">
-          <h2>Distribution des Actifs</h2>
-          <canvas id="distribution-chart" height="300"></canvas>
-        </div>
-      </div>
-
-      <!-- Positions Ouvertes -->
-      <div class="positions-container">
-        <div class="section-header">
-          <h2>Positions Ouvertes</h2>
-          <div class="actions">
-            <button id="refresh-positions" class="btn btn-icon"><i class="fas fa-sync-alt"></i></button>
-            <button id="new-order" class="btn btn-primary"><i class="fas fa-plus"></i> Nouvel ordre</button>
-          </div>
-        </div>
-        <div class="table-container">
-          <table class="positions-table">
-            <thead>
-              <tr>
-                <th>Symbole</th>
-                <th>Type</th>
-                <th>Taille</th>
-                <th>Prix Entrée</th>
-                <th>Prix Actuel</th>
-                <th>Profit</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% activeTrades.forEach(trade => { %>
-              <tr>
+        // Initialize charts
+        const perfChart = new Chart(
+            document.getElementById('performance-chart'),
+            {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Valeur du portefeuille',
+                        data: [10000, 10500, 11000, 11500, 12000, 12500],
+                        borderColor: '#2962ff',
+                        backgroundColor: 'rgba(41, 98, 255, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            }
+        );
+        
+        const distChart = new Chart(
+            document.getElementById('distribution-chart'),
+            {
+                type: 'doughnut',
+                data: {
+                    labels: ['BTC', 'ETH', 'SOL', 'ADA', 'DOGE'],
+                    datasets: [{
+                        data: [40, 25, 15, 10, 10],
+                        backgroundColor: [
+                            '#2962ff',
+                            '#00c853',
+                            '#ffab00',
+                            '#ff1744',
+                            '#aa00ff'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'right' }
+                    }
+                }
+            }
+        );
+        
+        // Order form logic
+        document.getElementById('order-type').addEventListener('change', function() {
+            const priceGroup = document.getElementById('price-group');
+            if (this.value === 'limit') {
+                priceGroup.style.display = 'block';
+            } else {
+                priceGroup.style.display = 'none';
+            }
+        });
+        
+        // Simulate DOGE purchase
+        document.querySelector('.order-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const symbol = document.getElementById('symbol').value;
+            const amount = document.getElementById('amount').value;
+            
+            alert(`Ordre d'achat exécuté pour ${amount} ${symbol} !`);
+            
+            // Update positions table
+            const positionsTable = document.querySelector('.data-table tbody');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
                 <td>
-                  <div class="asset-info">
-                    <img src="/dashboard/img/<%= trade.symbol.toLowerCase().replace('usdt', '') %>.svg" alt="<%= trade.symbol %>" class="asset-icon">
-                    <%= trade.symbol %>
-                  </div>
-                </td>
-                <td><span class="badge <%= trade.side === 'buy' ? 'badge-success' : 'badge-danger' %>">
-                  <%= trade.side === 'buy' ? 'Achat' : 'Vente' %>
-                </span></td>
-                <td><%= trade.amount %></td>
-                <td>$<%= trade.entryPrice.toFixed(2) %></td>
-                <td>$<%= trade.currentPrice.toFixed(2) %></td>
-                <td class="<%= trade.profit > 0 ? 'positive' : 'negative' %>">
-                  $<%= trade.profit.toFixed(2) %> (<%= trade.profitPercent.toFixed(2) %>%)
+                    <div class="asset">
+                        <div class="asset-icon">
+                            ${symbol.substring(0, 4)}
+                        </div>
+                        <span>${symbol}</span>
+                    </div>
                 </td>
                 <td>
-                  <div class="action-buttons">
-                    <button class="btn btn-sm btn-close" data-id="<%= trade.id %>">
-                      <i class="fas fa-times"></i> Fermer
-                    </button>
-                    <button class="btn btn-sm btn-edit" data-id="<%= trade.id %>">
-                      <i class="fas fa-edit"></i> Modifier
-                    </button>
-                  </div>
+                    <span class="badge badge-buy">
+                        Achat
+                    </span>
                 </td>
-              </tr>
-              <% }); %>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Dernières Activités -->
-      <div class="activity-container">
-        <div class="section-header">
-          <h2>Activité Récente</h2>
-          <div class="actions">
-            <button id="refresh-activity" class="btn btn-icon"><i class="fas fa-sync-alt"></i></button>
-          </div>
-        </div>
-        <div class="activity-list">
-          <% activities.forEach(activity => { %>
-          <div class="activity-item <%= activity.type === 'trade' ? 'trade-activity' : '' %>">
-            <div class="activity-icon">
-              <i class="<%= activity.icon %>"></i>
-            </div>
-            <div class="activity-content">
-              <p><%= activity.message %></p>
-              <small><%= activity.timestamp %></small>
-            </div>
-            <% if (activity.type === 'trade') { %>
-            <div class="activity-action">
-              <button class="btn btn-sm">Détails</button>
-            </div>
-            <% } %>
-          </div>
-          <% }); %>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal pour les ordres -->
-  <div id="order-modal" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <h2>Passer un nouvel ordre</h2>
-      <form id="order-form">
-        <div class="form-group">
-          <label for="symbol">Symbole</label>
-          <select id="symbol" required>
-            <option value="">Sélectionnez un symbole</option>
-            <option value="BTCUSDT">BTC/USDT</option>
-            <option value="ETHUSDT">ETH/USDT</option>
-            <option value="SOLUSDT">SOL/USDT</option>
-            <option value="XRPUSDT">XRP/USDT</option>
-            <option value="ADAUSDT">ADA/USDT</option>
-          </select>
-        </div>
-        
-        <div class="form-group">
-          <label for="order-type">Type d'ordre</label>
-          <select id="order-type" required>
-            <option value="market">Marché</option>
-            <option value="limit">Limite</option>
-          </select>
-        </div>
-        
-        <div class="form-group">
-          <label for="side">Position</label>
-          <select id="side" required>
-            <option value="buy">Achat</option>
-            <option value="sell">Vente</option>
-          </select>
-        </div>
-        
-        <div class="form-group">
-          <label for="amount">Quantité</label>
-          <input type="number" id="amount" step="0.001" min="0.001" required>
-        </div>
-        
-        <div class="form-group" id="price-group" style="display: none;">
-          <label for="price">Prix</label>
-          <input type="number" id="price" step="0.01" min="0">
-        </div>
-        
-        <div class="form-group">
-          <label for="leverage">Effet de levier</label>
-          <input type="number" id="leverage" min="1" max="100" value="10">
-        </div>
-        
-        <div class="form-actions">
-          <button type="button" class="btn btn-secondary" id="cancel-order">Annuler</button>
-          <button type="submit" class="btn btn-primary">Exécuter l'ordre</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <script src="/dashboard/js/api.js"></script>
-  <script src="/dashboard/js/chart.js"></script>
-  <script src="/dashboard/js/dashboard.js"></script>
+                <td>${amount}</td>
+                <td>$0.15</td>
+                <td>$0.16</td>
+                <td class="positive">
+                    $10.00 (6.67%)
+                </td>
+                <td>
+                    <div class="actions">
+                        <button class="btn-icon" title="Fermer la position">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <button class="btn-icon" title="Modifier">
+                            <i class="fas fa-pen"></i>
+                        </button>
+                        <button class="btn-icon" title="Détails">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            positionsTable.appendChild(newRow);
+            
+            // Show success notification
+            const activityFeed = document.querySelector('.activity-feed');
+            const newActivity = document.createElement('div');
+            newActivity.className = 'activity-item';
+            newActivity.innerHTML = `
+                <div class="activity-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <div class="activity-content">
+                    <p>Ordre d'achat exécuté pour ${symbol}</p>
+                    <span>À l'instant</span>
+                </div>
+            `;
+            activityFeed.prepend(newActivity);
+        });
+    </script>
 </body>
 </html>
