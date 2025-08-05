@@ -6,10 +6,11 @@ import config from '../config/exchanges.js';
     const exchange = connect(config.selectedExchange, config.exchanges[config.selectedExchange]);
     await exchange.loadMarkets();
     console.log(`✅ Connecté avec succès à ${config.selectedExchange}`);
-    console.log(`💰 Solde: ${(await exchange.fetchBalance()).USDT.free} USDT`);
+    const balance = await exchange.fetchBalance();
+    console.log(`💰 Solde: ${balance.USDT.free} USDT`);
   } catch (error) {
     console.error('Échec de la configuration:');
-    console.error(error.message);
+    console.error(error);
     process.exit(1);
   }
 })();
