@@ -1,3 +1,10 @@
+import { connect } from './connector.js';
+import config from '../../config/exchanges.js';
+
+// ... (le reste du code inchangé)
+
+export { executeStrategy };
+
 const { connect } = require('./connector');
 const config = require('../../config/exchanges');
 
@@ -31,5 +38,6 @@ const calculatePositionSize = (entryPrice) => {
   const accountBalance = config.accountBalance;
   return (accountBalance * riskPercent) / entryPrice;
 };
+
 
 module.exports = { executeStrategy };
