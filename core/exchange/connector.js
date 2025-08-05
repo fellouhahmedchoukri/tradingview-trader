@@ -15,8 +15,10 @@ export const connect = (exchangeId, config) => {
     }
   });
   
+  // Mode testnet pour Binance
   if (config.testnet) {
     exchange.setSandboxMode(true);
+    exchange.urls.api = exchange.urls.test;
   }
   
   return exchange;
