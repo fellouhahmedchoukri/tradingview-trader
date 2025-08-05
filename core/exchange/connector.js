@@ -10,6 +10,6 @@ export const connect = (exchangeId, config) => {
     options: { adjustForTimeDifference: true }
   });
   
-  exchange.setSandboxMode(false); // Mode production
+  exchange.setSandboxMode(false);
   return exchange;
 };
