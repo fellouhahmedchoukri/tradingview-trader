@@ -1,15 +1,23 @@
 import ccxt from 'ccxt';
 
 export const connect = (exchangeId, config) => {
-  const exchangeClass = ccxt[exchangeId];
-  if (!exchangeClass) throw new Error(`Exchange non supporté: ${exchangeId}`);
+  if (!ccxt[exchangeId]) {
+    throw new Error(`Exchange non supporté: ${exchangeId}`);
+  }
   
-  const exchange = new exchangeClass({
+  const exchange = new ccxt[exchangeId]({
     apiKey: config.apiKey,
     secret: config.secret,
-    options: { adjustForTimeDifference: true }
+    enableRateLimit: true,
+    options: {
+      defaultType: 'future',
+      adjustForTimeDifference: true
+    }
   });
   
-  exchange.setSandboxMode(false);
+  if (config.testnet) {
+    exchange.setSandboxMode(true);
+  }
+  
   return exchange;
 };
