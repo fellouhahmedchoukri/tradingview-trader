@@ -7,7 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <style>
         :root {
             --primary: #2962ff;
@@ -216,7 +215,7 @@
             object-fit: cover;
         }
 
-        /* Stats Grid */
+        /* Stats Cards */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -283,7 +282,7 @@
         .stat-trend.negative { color: var(--danger); }
         .stat-trend.neutral { color: var(--text-secondary); }
 
-        /* Charts */
+        /* Charts Row */
         .charts-row {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -1127,7 +1126,9 @@
     <script>
         // Navigation
         document.querySelectorAll('.menu-item').forEach(item => {
-            item.addEventListener('click', function() {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                
                 // Update active menu item
                 document.querySelectorAll('.menu-item').forEach(i => {
                     i.classList.remove('active');
@@ -1147,9 +1148,9 @@
         });
         
         // Initialize charts
-        const perfChart = new Chart(
-            document.getElementById('performance-chart'),
-            {
+        const perfCtx = document.getElementById('performance-chart');
+        if (perfCtx) {
+            const perfChart = new Chart(perfCtx, {
                 type: 'line',
                 data: {
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
@@ -1168,12 +1169,12 @@
                         legend: { display: false }
                     }
                 }
-            }
-        );
+            });
+        }
         
-        const distChart = new Chart(
-            document.getElementById('distribution-chart'),
-            {
+        const distCtx = document.getElementById('distribution-chart');
+        if (distCtx) {
+            const distChart = new Chart(distCtx, {
                 type: 'doughnut',
                 data: {
                     labels: ['BTC', 'ETH', 'SOL', 'ADA', 'DOGE'],
@@ -1194,82 +1195,51 @@
                         legend: { position: 'right' }
                     }
                 }
-            }
-        );
+            });
+        }
         
         // Order form logic
-        document.getElementById('order-type').addEventListener('change', function() {
-            const priceGroup = document.getElementById('price-group');
-            if (this.value === 'limit') {
-                priceGroup.style.display = 'block';
-            } else {
-                priceGroup.style.display = 'none';
-            }
-        });
+        const orderType = document.getElementById('order-type');
+        if (orderType) {
+            orderType.addEventListener('change', function() {
+                const priceGroup = document.getElementById('price-group');
+                if (this.value === 'limit') {
+                    priceGroup.style.display = 'block';
+                } else {
+                    priceGroup.style.display = 'none';
+                }
+            });
+        }
         
         // Simulate DOGE purchase
-        document.querySelector('.order-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const symbol = document.getElementById('symbol').value;
-            const amount = document.getElementById('amount').value;
-            
-            alert(`Ordre d'achat exécuté pour ${amount} ${symbol} !`);
-            
-            // Update positions table
-            const positionsTable = document.querySelector('.data-table tbody');
-            const newRow = document.createElement('tr');
-            newRow.innerHTML = `
-                <td>
-                    <div class="asset">
-                        <div class="asset-icon">
-                            ${symbol.substring(0, 4)}
+        const orderForm = document.querySelector('.order-form');
+        if (orderForm) {
+            orderForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const symbol = document.getElementById('symbol').value;
+                const amount = document.getElementById('amount').value;
+                
+                alert(`Ordre d'achat exécuté pour ${amount} ${symbol} !`);
+                
+                // Show success notification
+                const activityFeed = document.querySelector('.activity-feed');
+                if (activityFeed) {
+                    const newActivity = document.createElement('div');
+                    newActivity.className = 'activity-item';
+                    newActivity.innerHTML = `
+                        <div class="activity-icon">
+                            <i class="fas fa-bolt"></i>
                         </div>
-                        <span>${symbol}</span>
-                    </div>
-                </td>
-                <td>
-                    <span class="badge badge-buy">
-                        Achat
-                    </span>
-                </td>
-                <td>${amount}</td>
-                <td>$0.15</td>
-                <td>$0.16</td>
-                <td class="positive">
-                    $10.00 (6.67%)
-                </td>
-                <td>
-                    <div class="actions">
-                        <button class="btn-icon" title="Fermer la position">
-                            <i class="fas fa-times"></i>
-                        </button>
-                        <button class="btn-icon" title="Modifier">
-                            <i class="fas fa-pen"></i>
-                        </button>
-                        <button class="btn-icon" title="Détails">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </div>
-                </td>
-            `;
-            positionsTable.appendChild(newRow);
-            
-            // Show success notification
-            const activityFeed = document.querySelector('.activity-feed');
-            const newActivity = document.createElement('div');
-            newActivity.className = 'activity-item';
-            newActivity.innerHTML = `
-                <div class="activity-icon">
-                    <i class="fas fa-bolt"></i>
-                </div>
-                <div class="activity-content">
-                    <p>Ordre d'achat exécuté pour ${symbol}</p>
-                    <span>À l'instant</span>
-                </div>
-            `;
-            activityFeed.prepend(newActivity);
-        });
+                        <div class="activity-content">
+                            <p>Ordre d'achat exécuté pour ${symbol}</p>
+                            <span>À l'instant</span>
+                        </div>
+                    `;
+                    activityFeed.prepend(newActivity);
+                }
+            });
+        }
     </script>
 </body>
 </html>
