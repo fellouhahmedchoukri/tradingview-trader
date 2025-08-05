@@ -30,5 +30,25 @@ app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
 
+// Route principale pour vérification
+app.get('/', (req, res) => {
+  res.send(`
+    <h1>TradingBot Pro</h1>
+    <p>Serveur opérationnel</p>
+    <ul>
+      <li>Webhook: <code>POST /webhook</code></li>
+      <li>Health Check: <a href="/health">/health</a></li>
+    </ul>
+  `);
+});
+
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Serveur actif sur http://localhost:${PORT}`));
+const HOST = process.env.HOST || '0.0.0.0';  // Écoute sur toutes les interfaces
+const PUBLIC_URL = process.env.PUBLIC_URL || `http://localhost:${PORT}`;
+
+app.listen(PORT, HOST, () => {
+  console.log(`🚀 Serveur actif sur: ${HOST}:${PORT}`);
+  console.log(`🌐 URL publique: ${PUBLIC_URL}`);
+  console.log(`✅ Health Check: ${PUBLIC_URL}/health`);
+  console.log(`🔔 Webhook TradingView: ${PUBLIC_URL}/webhook`);
+});
