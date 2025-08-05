@@ -1,25 +1,27 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TradingBot Pro - Dashboard</title>
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/dashboard/css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3.3.0/build/global/luxon.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1"></script>
 </head>
 <body>
   <div class="dashboard-container">
     <!-- Sidebar -->
     <div class="sidebar">
       <div class="logo">
-        <i class="fas fa-chart-line"></i>
+        <img src="/dashboard/img/logo.svg" alt="TradingBot Pro">
         <span>TradingBot Pro</span>
       </div>
       <nav>
         <ul>
           <li class="active"><a href="/dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
-          <li><a href="/dashboard/trades"><i class="fas fa-exchange-alt"></i> Trades</a></li>
+          <li><a href="/dashboard/positions"><i class="fas fa-exchange-alt"></i> Positions</a></li>
           <li><a href="/dashboard/strategies"><i class="fas fa-robot"></i> Stratégies</a></li>
           <li><a href="/dashboard/analytics"><i class="fas fa-chart-bar"></i> Analytics</a></li>
           <li><a href="/dashboard/settings"><i class="fas fa-cog"></i> Paramètres</a></li>
@@ -29,6 +31,10 @@
         <div class="balance">
           <span>Solde</span>
           <strong id="account-balance">$<%= accountBalance.toFixed(2) %></strong>
+        </div>
+        <div class="profit">
+          <span>Profit du jour</span>
+          <strong class="positive" id="daily-profit">+$<%= dailyProfit.toFixed(2) %></strong>
         </div>
         <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
       </div>
@@ -41,6 +47,7 @@
         <div class="status-indicator">
           <span class="status-dot active"></span>
           <span>Connecté à Binance</span>
+          <span class="last-update" id="last-update">Dernière mise à jour: <%= new Date().toLocaleTimeString() %></span>
         </div>
       </header>
 
@@ -83,57 +90,87 @@
         </div>
       </div>
 
-      <!-- Graphique de Performance -->
-      <div class="chart-container">
-        <h2>Performance du Portefeuille</h2>
-        <canvas id="performance-chart" height="300"></canvas>
+      <!-- Portfolio Overview -->
+      <div class="portfolio-overview">
+        <div class="chart-container">
+          <h2>Performance du Portefeuille</h2>
+          <canvas id="performance-chart" height="300"></canvas>
+        </div>
+        
+        <div class="asset-distribution">
+          <h2>Distribution des Actifs</h2>
+          <canvas id="distribution-chart" height="300"></canvas>
+        </div>
       </div>
 
       <!-- Positions Ouvertes -->
       <div class="positions-container">
-        <h2>Positions Ouvertes</h2>
-        <table class="positions-table">
-          <thead>
-            <tr>
-              <th>Symbole</th>
-              <th>Type</th>
-              <th>Taille</th>
-              <th>Prix Entrée</th>
-              <th>Prix Actuel</th>
-              <th>Profit</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% activeTrades.forEach(trade => { %>
-            <tr>
-              <td><%= trade.symbol %></td>
-              <td><span class="badge <%= trade.side === 'buy' ? 'badge-success' : 'badge-danger' %>">
-                <%= trade.side === 'buy' ? 'Achat' : 'Vente' %>
-              </span></td>
-              <td><%= trade.amount %></td>
-              <td>$<%= trade.entryPrice.toFixed(2) %></td>
-              <td>$<%= trade.currentPrice.toFixed(2) %></td>
-              <td class="<%= trade.profit > 0 ? 'positive' : 'negative' %>">
-                $<%= trade.profit.toFixed(2) %> (<%= trade.profitPercent.toFixed(2) %>%)
-              </td>
-              <td>
-                <button class="btn btn-sm btn-close" data-id="<%= trade.id %>">
-                  Fermer
-                </button>
-              </td>
-            </tr>
-            <% }); %>
-          </tbody>
-        </table>
+        <div class="section-header">
+          <h2>Positions Ouvertes</h2>
+          <div class="actions">
+            <button id="refresh-positions" class="btn btn-icon"><i class="fas fa-sync-alt"></i></button>
+            <button id="new-order" class="btn btn-primary"><i class="fas fa-plus"></i> Nouvel ordre</button>
+          </div>
+        </div>
+        <div class="table-container">
+          <table class="positions-table">
+            <thead>
+              <tr>
+                <th>Symbole</th>
+                <th>Type</th>
+                <th>Taille</th>
+                <th>Prix Entrée</th>
+                <th>Prix Actuel</th>
+                <th>Profit</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% activeTrades.forEach(trade => { %>
+              <tr>
+                <td>
+                  <div class="asset-info">
+                    <img src="/dashboard/img/<%= trade.symbol.toLowerCase().replace('usdt', '') %>.svg" alt="<%= trade.symbol %>" class="asset-icon">
+                    <%= trade.symbol %>
+                  </div>
+                </td>
+                <td><span class="badge <%= trade.side === 'buy' ? 'badge-success' : 'badge-danger' %>">
+                  <%= trade.side === 'buy' ? 'Achat' : 'Vente' %>
+                </span></td>
+                <td><%= trade.amount %></td>
+                <td>$<%= trade.entryPrice.toFixed(2) %></td>
+                <td>$<%= trade.currentPrice.toFixed(2) %></td>
+                <td class="<%= trade.profit > 0 ? 'positive' : 'negative' %>">
+                  $<%= trade.profit.toFixed(2) %> (<%= trade.profitPercent.toFixed(2) %>%)
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="btn btn-sm btn-close" data-id="<%= trade.id %>">
+                      <i class="fas fa-times"></i> Fermer
+                    </button>
+                    <button class="btn btn-sm btn-edit" data-id="<%= trade.id %>">
+                      <i class="fas fa-edit"></i> Modifier
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <!-- Dernières Activités -->
       <div class="activity-container">
-        <h2>Activité Récente</h2>
+        <div class="section-header">
+          <h2>Activité Récente</h2>
+          <div class="actions">
+            <button id="refresh-activity" class="btn btn-icon"><i class="fas fa-sync-alt"></i></button>
+          </div>
+        </div>
         <div class="activity-list">
           <% activities.forEach(activity => { %>
-          <div class="activity-item">
+          <div class="activity-item <%= activity.type === 'trade' ? 'trade-activity' : '' %>">
             <div class="activity-icon">
               <i class="<%= activity.icon %>"></i>
             </div>
@@ -141,6 +178,11 @@
               <p><%= activity.message %></p>
               <small><%= activity.timestamp %></small>
             </div>
+            <% if (activity.type === 'trade') { %>
+            <div class="activity-action">
+              <button class="btn btn-sm">Détails</button>
+            </div>
+            <% } %>
           </div>
           <% }); %>
         </div>
@@ -148,7 +190,65 @@
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="/js/dashboard.js"></script>
+  <!-- Modal pour les ordres -->
+  <div id="order-modal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Passer un nouvel ordre</h2>
+      <form id="order-form">
+        <div class="form-group">
+          <label for="symbol">Symbole</label>
+          <select id="symbol" required>
+            <option value="">Sélectionnez un symbole</option>
+            <option value="BTCUSDT">BTC/USDT</option>
+            <option value="ETHUSDT">ETH/USDT</option>
+            <option value="SOLUSDT">SOL/USDT</option>
+            <option value="XRPUSDT">XRP/USDT</option>
+            <option value="ADAUSDT">ADA/USDT</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="order-type">Type d'ordre</label>
+          <select id="order-type" required>
+            <option value="market">Marché</option>
+            <option value="limit">Limite</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="side">Position</label>
+          <select id="side" required>
+            <option value="buy">Achat</option>
+            <option value="sell">Vente</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="amount">Quantité</label>
+          <input type="number" id="amount" step="0.001" min="0.001" required>
+        </div>
+        
+        <div class="form-group" id="price-group" style="display: none;">
+          <label for="price">Prix</label>
+          <input type="number" id="price" step="0.01" min="0">
+        </div>
+        
+        <div class="form-group">
+          <label for="leverage">Effet de levier</label>
+          <input type="number" id="leverage" min="1" max="100" value="10">
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" id="cancel-order">Annuler</button>
+          <button type="submit" class="btn btn-primary">Exécuter l'ordre</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/dashboard/js/api.js"></script>
+  <script src="/dashboard/js/chart.js"></script>
+  <script src="/dashboard/js/dashboard.js"></script>
 </body>
 </html>
