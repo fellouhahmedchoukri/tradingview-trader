@@ -1,15 +1,9 @@
-import { connect } from './connector.js';
+import { connect as createExchangeConnection } from './connector.js';
 import config from '../../config/exchanges.js';
 
-// ... (le reste du code inchangé)
-
-export { executeStrategy };
-
-const { connect } = require('./connector');
-const config = require('../../config/exchanges');
-
 const executeStrategy = async (signal) => {
-  const exchange = connect(config.selectedExchange);
+  // Utilisation du nom modifié
+  const exchange = createExchangeConnection(config.selectedExchange, config.exchanges[config.selectedExchange]);
   
   const orderParams = {
     symbol: `${signal.asset}/USDT:USDT`,
@@ -20,24 +14,34 @@ const executeStrategy = async (signal) => {
 
   try {
     if (signal.type === 'BUY') {
-      return await exchange.createLongOrder(orderParams);
+      return await exchange.createOrder(orderParams.symbol, orderParams.type, 'buy', orderParams.amount);
     } else if (signal.type === 'SELL') {
-      return await exchange.createShortOrder(orderParams);
+      return await exchange.createOrder(orderParams.symbol, orderParams.type, 'sell', orderParams.amount);
     } else if (signal.type === 'CLOSE') {
-      return await exchange.closePosition(orderParams.symbol);
+      const positions = await exchange.fetchPositions([orderParams.symbol]);
+      if (positions.length > 0) {
+        return await exchange.cancelAllOrders(orderParams.symbol);
+      }
     }
   } catch (error) {
     console.error(`Erreur d'exécution: ${error.message}`);
-    // Système de reprise ici
+    // Système de reprise
+    await handleOrderError(error, orderParams);
   }
 };
 
-// Calcul automatique de la taille de position
 const calculatePositionSize = (entryPrice) => {
-  const riskPercent = 0.02; // 2% du capital
-  const accountBalance = config.accountBalance;
-  return (accountBalance * riskPercent) / entryPrice;
+  const riskPercent = 0.02;
+  return (config.accountBalance * riskPercent) / entryPrice;
 };
 
+const handleOrderError = async (error, orderParams) => {
+  if (error instanceof ccxt.NetworkError) {
+    console.log('Erreur réseau, nouvelle tentative...');
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    return executeStrategy(orderParams);
+  }
+  // Gestion d'autres erreurs
+};
 
-module.exports = { executeStrategy };
+export { executeStrategy };
