@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TradingBot Pro - Dashboard</title>
+  <link rel="stylesheet" href="/dashboard/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="logo">
+        <i class="fas fa-chart-line"></i>
+        <span>TradingBot Pro</span>
+      </div>
+      <nav>
+        <ul>
+          <li class="active"><a href="/dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+          <li><a href="#"><i class="fas fa-exchange-alt"></i> Trades</a></li>
+          <li><a href="#"><i class="fas fa-robot"></i> Stratégies</a></li>
+          <li><a href="#"><i class="fas fa-chart-bar"></i> Analytics</a></li>
+          <li><a href="#"><i class="fas fa-cog"></i> Paramètres</a></li>
+        </ul>
+      </nav>
+      <div class="account-info">
+        <div class="balance">
+          <span>Solde</span>
+          <strong id="account-balance">$<%= accountBalance.toFixed(2) %></strong>
+        </div>
+        <a href="#" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <header>
+        <h1>Tableau de Bord</h1>
+        <div class="status-indicator">
+          <span class="status-dot active"></span>
+          <span>Connecté à Binance</span>
+        </div>
+      </header>
+
+      <!-- Stats Overview -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-header">
+            <i class="fas fa-wallet"></i>
+            <h3>Solde</h3>
+          </div>
+          <div class="stat-value">$<%= accountBalance.toFixed(2) %></div>
+          <div class="stat-change positive">+2.3%</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <i class="fas fa-chart-line"></i>
+            <h3>Performance</h3>
+          </div>
+          <div class="stat-value">+15.7%</div>
+          <div class="stat-change positive">+1.2%</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <i class="fas fa-exchange-alt"></i>
+            <h3>Trades Actifs</h3>
+          </div>
+          <div class="stat-value"><%= activeTrades.length %></div>
+          <div class="stat-change neutral">0</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <i class="fas fa-robot"></i>
+            <h3>Stratégies</h3>
+          </div>
+          <div class="stat-value"><%= strategies.length %></div>
+          <div class="stat-change positive">+2</div>
+        </div>
+      </div>
+
+      <!-- Positions Ouvertes -->
+      <div class="positions-container">
+        <h2>Positions Ouvertes</h2>
+        <table class="positions-table">
+          <thead>
+            <tr>
+              <th>Symbole</th>
+              <th>Type</th>
+              <th>Taille</th>
+              <th>Prix Entrée</th>
+              <th>Prix Actuel</th>
+              <th>Profit</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% activeTrades.forEach(trade => { %>
+            <tr>
+              <td><%= trade.symbol %></td>
+              <td><span class="badge <%= trade.side === 'buy' ? 'badge-success' : 'badge-danger' %>">
+                <%= trade.side === 'buy' ? 'Achat' : 'Vente' %>
+              </span></td>
+              <td><%= trade.amount %></td>
+              <td>$<%= trade.entryPrice.toFixed(2) %></td>
+              <td>$<%= trade.currentPrice.toFixed(2) %></td>
+              <td class="<%= trade.profit > 0 ? 'positive' : 'negative' %>">
+                $<%= trade.profit.toFixed(2) %> (<%= ((trade.profit / (trade.entryPrice * trade.amount)) * 100).toFixed(2) %>%)
+              </td>
+              <td>
+                <button class="btn btn-sm btn-close" data-id="<%= trade.id %>">
+                  Fermer
+                </button>
+              </td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Dernières Activités -->
+      <div class="activity-container">
+        <h2>Activité Récente</h2>
+        <div class="activity-list">
+          <% activities.forEach(activity => { %>
+          <div class="activity-item">
+            <div class="activity-icon">
+              <i class="<%= activity.icon %>"></i>
+            </div>
+            <div class="activity-content">
+              <p><%= activity.message %></p>
+              <small><%= activity.timestamp %></small>
+            </div>
+          </div>
+          <% }); %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/dashboard/js/dashboard.js"></script>
+</body>
+</html>
