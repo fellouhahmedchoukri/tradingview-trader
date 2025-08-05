@@ -2,46 +2,73 @@ import { connect as createExchangeConnection } from './connector.js';
 import config from '../../config/exchanges.js';
 
 const executeStrategy = async (signal) => {
-  // Utilisation du nom modifié
-  const exchange = createExchangeConnection(config.selectedExchange, config.exchanges[config.selectedExchange]);
+  const exchange = createExchangeConnection(
+    config.selectedExchange, 
+    config.exchanges[config.selectedExchange]
+  );
+  
+  // Format du symbol pour Binance
+  const binanceSymbol = `${signal.asset}USDT`;
   
   const orderParams = {
-    symbol: `${signal.asset}/USDT:USDT`,
+    symbol: binanceSymbol,
     type: 'MARKET',
     amount: signal.size || calculatePositionSize(signal.entryPrice),
     leverage: signal.leverage
   };
 
   try {
+    console.log(`Signal reçu: ${signal.type} ${orderParams.symbol} à ${signal.entryPrice}`);
+    
     if (signal.type === 'BUY') {
-      return await exchange.createOrder(orderParams.symbol, orderParams.type, 'buy', orderParams.amount);
+      const order = await exchange.createOrder(
+        binanceSymbol,
+        'market',
+        'buy',
+        orderParams.amount
+      );
+      console.log('Ordre BUY exécuté:', order);
+      return order;
+      
     } else if (signal.type === 'SELL') {
-      return await exchange.createOrder(orderParams.symbol, orderParams.type, 'sell', orderParams.amount);
+      const order = await exchange.createOrder(
+        binanceSymbol,
+        'market',
+        'sell',
+        orderParams.amount
+      );
+      console.log('Ordre SELL exécuté:', order);
+      return order;
+      
     } else if (signal.type === 'CLOSE') {
-      const positions = await exchange.fetchPositions([orderParams.symbol]);
+      console.log('Fermeture des positions pour', binanceSymbol);
+      await exchange.cancelAllOrders(binanceSymbol);
+      const positions = await exchange.fetchPositions([binanceSymbol]);
+      
       if (positions.length > 0) {
-        return await exchange.cancelAllOrders(orderParams.symbol);
+        const closeOrder = await exchange.createOrder(
+          binanceSymbol,
+          'market',
+          positions[0].side === 'long' ? 'sell' : 'buy',
+          positions[0].contracts
+        );
+        console.log('Position fermée:', closeOrder);
+        return closeOrder;
       }
     }
   } catch (error) {
     console.error(`Erreur d'exécution: ${error.message}`);
-    // Système de reprise
-    await handleOrderError(error, orderParams);
+    // Réessayer après 2s en cas d'erreur réseau
+    if (error.name.includes('NetworkError')) {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      return executeStrategy(signal);
+    }
   }
 };
 
 const calculatePositionSize = (entryPrice) => {
-  const riskPercent = 0.02;
+  const riskPercent = 0.02; // 2% du capital
   return (config.accountBalance * riskPercent) / entryPrice;
-};
-
-const handleOrderError = async (error, orderParams) => {
-  if (error instanceof ccxt.NetworkError) {
-    console.log('Erreur réseau, nouvelle tentative...');
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    return executeStrategy(orderParams);
-  }
-  // Gestion d'autres erreurs
 };
 
 export { executeStrategy };
