@@ -1,8 +1,10 @@
-const express = require('express');
-const { authenticate } = require('../core/webhook/auth');
-const { parsePayload } = require('../core/webhook/parser');
-const { executeStrategy } = require('../core/exchange/executeOrder');
+import express from 'express';
+import { authenticate } from '../core/webhook/auth.js';
+import { parsePayload } from '../core/webhook/parser.js';
+import { executeStrategy } from '../core/exchange/executeOrder.js';
+import dotenv from 'dotenv';
 
+dotenv.config();
 const app = express();
 app.use(express.json());
 
@@ -13,9 +15,9 @@ app.post('/webhook', authenticate, (req, res) => {
     res.status(200).send('Signal exécuté');
   } catch (error) {
     console.error(`Erreur: ${error.message}`);
-    res.status(400).send('Traitement échoué');
+    res.status(400).send(error.message);
   }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Serveur actif sur ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Serveur actif sur ${PORT}`));
